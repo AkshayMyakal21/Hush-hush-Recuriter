@@ -1,0 +1,11 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+tempCodeRunnerFile.py
+venv/
+hushhush.db
+*.db
+model.joblib
+*.joblib 
+HushHush-Vault

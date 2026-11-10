@@ -1,0 +1,53 @@
+name: Continuous Integration (CI)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  lint-and-test:
+    name: Code Linting & DB Schema Verification
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Lint code with flake8
+      run: |
+        pip install flake8
+        # Stop build if there are syntax errors or undefined variables
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+
+    - name: Test Database Schema Creation
+      run: |
+        python -c "from database import create_tables; create_tables()"
+
+  docker-build-test:
+    name: Docker Build Validation
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Verify Docker Image Build
+      run: |
+        docker build -t hushhush-recruiter:ci .

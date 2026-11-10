@@ -1,0 +1,13 @@
+services:
+  recruiter-app:
+    build: .
+    container_name: hushhush_recruiter
+    ports:
+      - "8501:8501"
+    env_file:
+      - .env
+    volumes:
+      # Persist SQLite DB and model artifact outside the container
+      - ./hushhush.db:/app/hushhush.db
+      - ./model.joblib:/app/model.joblib
+    restart: unless-stopped
